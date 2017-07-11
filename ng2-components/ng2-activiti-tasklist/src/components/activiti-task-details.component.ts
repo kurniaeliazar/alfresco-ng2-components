@@ -27,7 +27,7 @@ import { Component,
     ViewChild
 } from '@angular/core';
 import { ContentLinkModel, FormModel, FormOutcomeEvent, FormService } from 'ng2-activiti-form';
-import { AlfrescoTranslationService, CardViewUpdateService, LogService } from 'ng2-alfresco-core';
+import { AlfrescoTranslationService, CardViewUpdateService, LogService, UpdateNotification } from 'ng2-alfresco-core';
 import { TaskQueryRequestRepresentationModel } from '../models/filter.model';
 import { TaskDetailsModel } from '../models/task-details.model';
 import { User } from '../models/user.model';
@@ -141,6 +141,7 @@ export class ActivitiTaskDetails implements OnInit, OnChanges {
     constructor(private translateService: AlfrescoTranslationService,
                 private activitiForm: FormService,
                 private activitiTaskList: ActivitiTaskListService,
+                private cardViewUpdateService: CardViewUpdateService,
                 private logService: LogService) {
 
         if (translateService) {
@@ -152,6 +153,8 @@ export class ActivitiTaskDetails implements OnInit, OnChanges {
         if (this.taskId) {
             this.loadDetails(this.taskId);
         }
+
+        this.cardViewUpdateService.itemUpdated$.subscribe(this.updateTaskDetails.bind(this));
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -183,6 +186,18 @@ export class ActivitiTaskDetails implements OnInit, OnChanges {
 
     isTaskActive() {
         return this.taskDetails && this.taskDetails.duration === null;
+    }
+
+    /**
+     * Save a task detail and update it after a successful response
+     *
+     * @param updateNotification
+     */
+    private updateTaskDetails(updateNotification: UpdateNotification) {
+        this.activitiTaskList.updateTask(this.taskId, updateNotification.changed)
+            .subscribe(
+                () => { this.loadDetails(this.taskId); }
+            );
     }
 
     /**
