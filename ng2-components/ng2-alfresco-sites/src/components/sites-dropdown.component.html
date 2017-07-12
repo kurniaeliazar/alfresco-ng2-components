@@ -1,0 +1,7 @@
+<div id="site-dropdown-container">
+    <md-select class="adf-site-list-element" id="site-dropdown" placeholder="Site List" [(ngModel)]="siteSelected" (ngModelChange)="selectedSite(siteSelected)">
+        <md-option *ngFor="let site of siteList" [value]="site.id" [id]="site.id">
+            {{ site.name }}
+        </md-option>
+    </md-select>
+</div>
